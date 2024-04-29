@@ -4,4 +4,5 @@ Link of "Dust3r on Colab" presentation: https://prezi.com/view/BAYbfo56JtDIK7AXP
 
 Link of "Go deeper with code" presentation: https://prezi.com/view/OGEwdDSkVcUMY4el3MZW/
 
-Link of part of our dataset for test: https://drive.google.com/drive/folders/10MfuA_K8jrXBQDnQ4NaoUx50B-whJZ3w?usp=sharing
+Link of part of our dataset for test: https://drive.google.com/drive/folders/135i7sjItUHJNBbDGhgBAp2sYt0Q2MNcc
+
