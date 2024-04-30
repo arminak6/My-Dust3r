@@ -1,11 +1,16 @@
-import dill
-import torch
+import argparse
+import gzip
 import numpy as np
 import os
+import pickle
+import torch
 import trimesh
 from scipy.spatial.transform import Rotation
 from dust3r.utils.device import to_numpy
+# from dust3r.utils.scene_converter import _convert_scene_output_to_glb
 from dust3r.viz import add_scene_cam, CAM_COLORS, OPENGL, pts3d_to_trimesh, cat_meshes
+
+
 
 def _convert_scene_output_to_glb(outdir, imgs, pts3d, mask, focals, cams2world, cam_size=0.05,
                                  cam_color=None, as_pointcloud=False, transparent_cams=False, silent=False):
@@ -38,69 +43,64 @@ def _convert_scene_output_to_glb(outdir, imgs, pts3d, mask, focals, cams2world, 
     rot = np.eye(4)
     rot[:3, :3] = Rotation.from_euler('y', np.deg2rad(180)).as_matrix()
     scene.apply_transform(np.linalg.inv(cams2world[0] @ OPENGL @ rot))
-    outfile = os.path.join(outdir, 'scene_test2.glb')
+
+
+    outfile = os.path.join(outdir, 'ssacmilan.glb')
     if not silent:
         print('(exporting 3D scene to', outfile, ')')
     scene.export(file_obj=outfile)
     return outfile
 
-def main():
-    with open('image4_5.pkl', 'rb') as f:
-        scene1 = dill.load(f)
+def main(file1, file2):
+    """
+    Main function that loads objects from two pickle files, combines them, and performs further processing.
 
-    with open('image6_7.pkl', 'rb') as f:
-        scene2 = dill.load(f)
+    Parameters:
+    file1 (str): Path to the first pickle file.
+    file2 (str): Path to the second pickle file.
 
-    imgs1 = scene1.imgs
-    focals1 = scene1.get_focals().cpu()
-    poses1 = scene1.get_im_poses().cpu()
-    pts3d1 = to_numpy(scene1.get_pts3d())
-    confidence_masks1 = to_numpy(scene1.get_masks())
-    intrinsics1 = scene1.get_intrinsics()
-    known_mask1 = scene1.get_known_focal_mask()
-    principal_points1 = scene1.get_principal_points()
-    depthmap1 = scene1.get_depthmaps()
+    Returns:
+    None
+    """
+    try:
+        with gzip.open(file1, "rb") as file:
+            loaded_objects1 = pickle.load(file)
 
-    imgs2 = scene2.imgs
-    focals2 = scene2.get_focals().cpu()
-    poses2 = scene2.get_im_poses().cpu()
-    pts3d2 = to_numpy(scene2.get_pts3d())
-    confidence_masks2 = to_numpy(scene2.get_masks())
-    intrinsics2 = scene2.get_intrinsics()
-    known_mask2 = scene2.get_known_focal_mask()
-    principal_points2 = scene2.get_principal_points()
-    depthmap2 = scene2.get_depthmaps()
+        with gzip.open(file2, "rb") as file:
+            loaded_objects2 = pickle.load(file)
 
-    for i in range(len(imgs2)):
-        imgs1.append(imgs2[i])
+        imgs1 = loaded_objects1[0]
+        focals1 = loaded_objects1[3]
+        poses1 = loaded_objects1[4]
+        pts3d1 = to_numpy(loaded_objects1[1])
+        confidence_masks1 = to_numpy(loaded_objects1[2])
 
-    focals1 = torch.cat((focals1, focals2))
-    poses1 = torch.cat((poses1, poses2))
+        imgs2 = loaded_objects2[0]
+        focals2 = loaded_objects2[3]
+        poses2 = loaded_objects2[4]
+        pts3d2 = to_numpy(loaded_objects2[1])
+        confidence_masks2 = to_numpy(loaded_objects2[2])
 
-    for i in range(len(pts3d2)):
-        pts3d1.append(pts3d2[i])
+        for i in range(len(imgs2)):
+            imgs1.append(imgs2[i])
 
-    for i in range(len(confidence_masks2)):
-        confidence_masks1.append(confidence_masks2[i])
+        focals1 = torch.cat((focals1, focals2))
+        poses1 = torch.cat((poses1, poses2))
 
-    intrinsics1 = torch.cat((intrinsics1, intrinsics2))
-    known_mask1 = torch.cat((known_mask1, known_mask2))
-    principal_points1 = torch.cat((principal_points1, principal_points2))
+        for i in range(len(pts3d2)):
+            pts3d1.append(pts3d2[i])
 
-    for i in range(len(depthmap2)):
-        depthmap1.append(depthmap2[i])
+        for i in range(len(confidence_masks2)):
+            confidence_masks1.append(confidence_masks2[i])
 
-    scene1.imgs = imgs1
-    scene1.get_focals = focals1
-    scene1.get_im_poses = poses1
-    scene1.get_pts3d = pts3d1
-    scene1.get_masks = confidence_masks1
-    scene1.get_intrinsics = intrinsics1
-    scene1.get_known_focal_mask = known_mask1
-    scene1.get_principal_points = principal_points1
-    scene1.get_depthmaps = depthmap1
+        concate_scene = _convert_scene_output_to_glb("./", imgs1, pts3d1, confidence_masks1, focals1, poses1)
 
-    concate_scene = _convert_scene_output_to_glb("./", imgs1, pts3d1, confidence_masks1, focals1, poses1)
+    except Exception as e:
+        print("An error occurred:", str(e))
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Process scene data from pickle files.')
+    parser.add_argument('file1', help='path to the first pickle file')
+    parser.add_argument('file2', help='path to the second pickle file')
+    args = parser.parse_args()
+    main(args.file1, args.file2)
