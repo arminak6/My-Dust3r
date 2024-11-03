@@ -46,6 +46,9 @@ Our final result demonstrates the effectiveness of the DUSt3R model, even with a
 
 Reference
 [1] Seitz, S. M., Curless, B., Diebel, J., Scharstein, D., & Szeliski, R. (2006). A Comparison and Evaluation of Multi-View Stereo Reconstruction Algorithms. In Proceedings of the 2006 IEEE Computer Society Conference on Computer Vision and Pattern Recognition - Volume 1 (pp. 519–528). https://doi.org/10.1109/CVPR.2006.19
+
 [2] omasi, C., & Kanade, T. (1992). Shape and Motion from Image Streams under Orthography: a Factorization Method. In International Journal of Computer Vision, 9(2), 137–154. https://doi.org/10.1007/BF00129684
+
 [3] Wang, S., Leroy, V., Cabon, Y., Chidlovskii, B., & Revaud, J. (2023). DUSt3R: Geometric 3D Vision Made Easy. Aalto University & Naver Labs Europe. Retrieved from https://dust3r.europe.naverlabs.com 
+
 [4] Besl, P. J., & McKay, N. D. (1992). A Method for Registration of 3-D Shapes. In IEEE Transactions on Pattern Analysis and Machine Intelligence, 14(2), 239–256. https://doi.org/10.1109/34.121791
