@@ -2,19 +2,23 @@
 
 3D reconstruction is the process of creating a digital 3D model from 2D images, widely used in fields like virtual reality, robotics, and medical imaging. By capturing images from multiple viewpoints, algorithms identify common points across the images to triangulate their positions in 3D space. This generates a point cloud or depth map that represents the shape and structure of the scene. Traditional approaches, such as Structure-from-Motion (SfM) and Multi-View Stereo (MVS), rely on accurate camera calibration and known poses to achieve precise results. However, recent advances in machine learning have enabled more flexible methods that can reconstruct 3D models without detailed camera information, making the process faster and more adaptable to complex environments. These improvements are transforming 3D reconstruction into a key technology across many industries.
 
+
 2 - Project Overview
 
 Our project aims to reconstruct a detailed 3D model of a cultural heritage site using a minimum of 100 images captured from various viewpoints. The goal is to create an accurate digital representation of the site that can be used for preservation, analysis, or virtual tourism. To achieve this, we chose to use DUSt3R (Dense Unconstrained Stereo 3D Reconstruction), a state-of-the-art method for 3D reconstruction that does not rely on explicit camera calibration or predefined poses.
 Before diving into the specifics of our project, it's essential to review the general concepts behind 3D reconstruction. This includes traditional techniques like Structure-from-Motion (SfM) and Multi-View Stereo (MVS), which rely on triangulation and known camera parameters to build 3D models. However, these methods often require precise calibration and well-aligned images to deliver accurate results.
 In the following sections, we will explain these general concepts in more detail, outline the workings of the DUSt3R model, and then describe how we applied it to our project. We will also address the challenges we faced and discuss the solutions we implemented to handle large datasets effectively. Finally, we will review the results of our 3D reconstruction process and evaluate its success in capturing the heritage site.
 
+
 3 - Multi-View Stereo (MVS)
 
 Multi-View Stereo (MVS)[1] is a technique used in 3D reconstruction to create detailed 3D models from multiple 2D images of a scene taken from different viewpoints. It works by identifying corresponding points in these images and using triangulation to estimate the 3D positions of those points. MVS builds on Structure-from-Motion (SfM), which provides the camera poses, to generate a dense reconstruction of the scene. The process typically involves steps like feature matching, depth map estimation, and refinement to create an accurate representation of the surfaces in the scene. MVS is widely used in applications like 3D mapping, virtual reality, and robotics, but it traditionally relies on well-calibrated cameras and sufficient overlap between images to perform effectively.
 
+
 4 - Structure-from-Motion (SfM)
 
 Structure-from-Motion (SfM)[2] is a method used in 3D reconstruction to estimate the 3D structure of a scene from a sequence of 2D images taken from different viewpoints. SfM simultaneously recovers both the camera positions (extrinsics) and the 3D coordinates of points in the scene by analyzing how objects move between images. This involves detecting and matching key features across images, then using geometric algorithms to calculate the relative motion of the camera and the 3D locations of the matched points. SfM is an essential step in creating sparse 3D reconstructions, and it often serves as a foundation for denser techniques like Multi-View Stereo (MVS). It is used in fields such as computer vision, photogrammetry, and robotics, especially when the camera calibration is unknown.
+
 
 5 - DUSt3R Method
 
@@ -23,9 +27,11 @@ The network outputs pointmaps, which are 2D grids of 3D points that represent th
 The model is trained with a 3D regression loss, measuring the Euclidean distance between predicted and ground-truth pointmaps. Additionally, confidence maps are predicted to handle uncertain regions in the image, weighting the regression loss and allowing the network to focus on more reliable parts of the scene.
 A major advantage of DUSt3R is that it does not rely on explicit camera models, learning geometric relations implicitly through the transformer architecture. This flexibility allows it to handle both monocular and multi-view reconstruction without camera calibration. Its transformer-based design provides end-to-end learning, simplifying the traditional pipeline of feature extraction and triangulation. The global alignment process further streamlines optimization by working directly in 3D space, leading to faster and more robust reconstruction.
 
+
 6 - Limitation in Our Experiment
 
 One limitation encountered while running the DUSt3R algorithm is its inability to handle large image datasets efficiently, even with 32GB RAM and an RTX 4080 GPU. The algorithm fails with more than 30 images due to memory overflow, restricting its scalability when processing larger image sets. This highlights the need for more powerful hardware or optimization of the algorithm to manage larger inputs effectively.
+
 
 7 - Our Solution: Handling Large Datasets and File Storage
 
